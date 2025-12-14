@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  nginx-ui-supervisor:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: nginx-supervisor-ui:latest
+    container_name: nginx-supervisor-service
+    # restart: always
+    # # 端口映射
+    # ports:
+    #   - "9000:9000"   # Nginx-UI RPC
+    # # 数据持久化
+    # volumes:
+    #   # Nginx 配置和日志
+    #   - ./data/nginx/conf:/etc/nginx:rw
+    #   - ./data/nginx/log:/var/log/nginx:rw
+    #   # Nginx-UI 数据
+    #   - ./data/nginx-ui:/opt/nginx-ui/data:rw

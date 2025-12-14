@@ -1,0 +1,43 @@
+services:
+  nginx-web:
+    image: nginx:latest
+    container_name: nginx-web   # 供脚本 docker exec 使用
+    restart: always
+    network_mode: host          # 使用宿主机网络，提高网络性能
+    volumes:
+      - ./data/nginx_run:/run/
+      - ./data/nginx_logs:/var/log/nginx/
+      - ./data/nginx_config:/etc/nginx/
+      - ./data/nginx_html:/usr/share/nginx/html
+
+  nginx-ui:
+    image: nginx-supervisor-ui:latest
+    container_name: nginx-ui
+    restart: always
+    network_mode: host          # 使用宿主机网络，提高网络性能
+    #ports:
+    #  - "9000:9000"
+    volumes:
+      - ./data/nginx_run:/run/
+      - ./data/nginx_logs:/var/log/nginx/
+      - ./data/nginx_config:/etc/nginx
+      - ./data/nginx_ui_data:/etc/nginx-ui
+      - ./scripts:/scripts:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - NGINX_UI_NGINX_PID_PATH=/run/
+      - NGINX_UI_NGINX_SBIN_PATH=nginx
+      - NGINX_UI_NGINX_ACCESS_LOG_PATH=/var/log/nginx/access.log
+      - NGINX_UI_NGINX_ERROR_LOG_PATH=/var/log/nginx/error.log
+      - NGINX_UI_NGINX_LOG_DIR_WHITE_LIST=/var/log/nginx/
+      - NGINX_UI_SERVER_PORT=9000
+      - NGINX_UI_SERVER_RUN_MODE=debug        # debug/release
+      - NGINX_UI_NGINX_CONFIG_DIR=/etc/nginx
+      - NGINX_UI_NGINX_CONTAINER_NAME=nginx-web  # 保持与上面一致
+      # - NGINX_UI_CRI_NGINX_CONTAINER_NAME=nginx-web  # 自己定义的，nginx-ct.sh 使用
+      - NGINX_UI_TERMINAL_START_CMD=bash
+      # - NGINX_UI_NGINX_TEST_CONFIG_CMD=/scripts/nginx-ctl.sh test
+      # - NGINX_UI_NGINX_RELOAD_CMD=/scripts/nginx-ctl.sh reload
+      # - NGINX_UI_NGINX_RESTART_CMD=/scripts/nginx-restart.sh
+    depends_on:
+      - nginx-web
