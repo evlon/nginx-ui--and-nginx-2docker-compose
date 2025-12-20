@@ -1,8 +1,14 @@
 # 第一阶段：构建阶段
 FROM alpine:latest AS builder
 
+# 1. 配置阿里云镜像源 (替换 apk 默认源)
+# Alpine 的镜像源配置文件是 /etc/apk/repositories
+# 使用 sed 命令将默认源替换为阿里云镜像源
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
+
 # 安装编译工具
-RUN apk add --no-cache \
+RUN apk update && \
+    apk add --no-cache \
     gcc \
     make \
     pcre-dev \
@@ -35,7 +41,6 @@ RUN ./configure \
     --http-scgi-temp-path=/var/cache/nginx/scgi_temp \
     --user=nginx \
     --group=nginx \
-    # 现有模块
     --with-http_ssl_module \
     --with-http_realip_module \
     --with-http_gzip_static_module \
@@ -45,7 +50,6 @@ RUN ./configure \
     --with-stream_ssl_preread_module \
     --with-stream_ssl_module \
     --with-http_stub_status_module \
-    # 新增模块
     --with-http_addition_module \
     --with-http_auth_request_module \
     --with-http_dav_module \
@@ -61,13 +65,9 @@ RUN ./configure \
     --with-mail \
     --with-mail_ssl_module \
     --with-stream_realip_module \
-    # grpc_pass 和 HTTP/2 相关模块
-    --with-http_grpc_module \
-    --with-http_v2_module            # 已经包含，确保保留 \
+    --with-http_v2_module \
     --with-pcre \
     --with-pcre-jit \
-    --with-openssl=/path/to/openssl # 建议使用较新版本的 OpenSSL  \ 
-    # 移除的模块
     --without-http_autoindex_module && \
     make -j$(nproc) && \
     make install
@@ -83,7 +83,7 @@ RUN apk add --no-cache \
     tzdata && \
     addgroup -S nginx && \
     adduser -S -G nginx nginx && \
-    mkdir -p /var/cache/nginx && \
+    mkdir -p /var/cache/nginx  /var/log/nginx  && \
     chown -R nginx:nginx /var/cache/nginx
 
 # 从构建阶段复制已编译的Nginx
