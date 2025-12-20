@@ -1,6 +1,6 @@
 services:
   nginx-web:
-    image: nginx:latest
+    image: nginx-src-combile:latest
     container_name: nginx-web   # 供脚本 docker exec 使用
     restart: always
     network_mode: host          # 使用宿主机网络，提高网络性能

@@ -20,6 +20,8 @@ unginx-ui--and-nginx-2docker-compose/
 │   │   └── ps.sh                    # 进程查看脚本
 │   ├── template/                    # 配置模板目录
 │   └── reset-data.sh                # 数据重置脚本
+├── nginx-docker-build/              # 自定义 Nginx 镜像构建目录
+│   └── Dockerfile                   # Nginx 1.29.4 自定义镜像构建文件
 ├── nginx-ui-docker-build/           # Nginx-UI 镜像构建目录
 │   ├── Dockerfile                   # Nginx-UI Docker 镜像构建文件
 │   ├── docker-compose.yml          # 构建环境 Docker Compose 配置
@@ -32,7 +34,16 @@ unginx-ui--and-nginx-2docker-compose/
 
 ## 快速开始
 
-### 1. 构建 Nginx-UI 镜像
+### 1. 构建自定义 Nginx 镜像
+
+进入 Nginx 构建目录并构建自定义镜像：
+
+```bash
+cd nginx-docker-build
+docker build -t custom-nginx:1.29.4 .
+```
+
+### 2. 构建 Nginx-UI 镜像
 
 首先进入构建目录并下载 Nginx-UI：
 
@@ -84,27 +95,6 @@ Nginx-UI 支持以下环境变量配置：
 - `./data/nginx_ui_data`: Nginx-UI 数据文件
 - `./data/nginx_run`: Nginx 运行时文件
 
-## 管理脚本
-
-### Nginx 控制脚本
-
-```bash
-# 测试 Nginx 配置
-docker exec nginx-ui /scripts/nginx-ctl.sh test
-
-# 重新加载 Nginx 配置
-docker exec nginx-ui /scripts/nginx-ctl.sh reload
-
-# 重启 Nginx 服务
-docker exec nginx-ui /scripts/nginx-restart.sh
-```
-
-### 进程查看脚本
-
-```bash
-# 查看容器内进程状态
-docker exec nginx-ui /scripts/ps.sh
-```
 
 ## 网络配置
 
@@ -139,14 +129,76 @@ docker-compose logs nginx-ui
 docker-compose logs nginx-web
 ```
 
+## 自定义 Nginx 镜像
+
+### 特性
+
+本项目包含一个自定义的 Nginx 1.29.4 Docker 镜像，具有以下特性：
+
+- **多阶段构建**: 使用 Alpine Linux 基础镜像，优化镜像大小
+- **国内镜像源**: 使用阿里云镜像源加速包下载
+- **丰富模块**: 集成多种常用 Nginx 模块
+- **安全配置**: 移除不必要的模块，增强安全性
+- **日志优化**: 配置日志输出到标准输出/错误
+
+### 已启用模块
+
+**HTTP 模块**:
+- `http_ssl_module` - SSL/TLS 支持
+- `http_realip_module` - 获取真实客户端IP
+- `http_gzip_static_module` - 静态文件压缩
+- `http_stub_status_module` - 状态监控
+- `http_v2_module` - HTTP/2 支持
+- `http_auth_request_module` - 认证请求
+- `http_dav_module` - WebDAV 支持
+- `http_secure_link_module` - 安全链接
+- 其他多种实用模块
+
+**Stream 模块**:
+- `stream` - TCP/UDP 代理
+- `stream_ssl_module` - Stream SSL 支持
+- `stream_ssl_preread_module` - SSL 预读取
+- `stream_realip_module` - Stream 真实IP
+
+**移除的模块**:
+- `http_autoindex_module` - 目录列表功能（安全考虑）
+
+### 构建配置
+
+镜像使用以下构建参数：
+- Nginx 版本：1.29.4
+- 用户：nginx
+- 配置路径：/etc/nginx/nginx.conf
+- 日志路径：/var/log/nginx/
+- PID 路径：/var/run/nginx.pid
+
+### 使用方法
+
+构建镜像：
+```bash
+cd nginx-docker-build
+docker build -t custom-nginx:1.29.4 .
+```
+
+运行容器：
+```bash
+docker run -d -p 80:80 -p 443:443 --name nginx custom-nginx:1.29.4
+```
+
+验证版本：
+```bash
+docker run --rm custom-nginx:1.29.4 -V
+```
+
 ## 技术栈
 
-- **Nginx**: 高性能 Web 服务器
+- **Nginx 1.29.4**: 自定义构建的高性能 Web 服务器
 - **Nginx-UI**: Nginx 可视化管理界面
 - **Docker**: 容器化技术
 - **Docker Compose**: 容器编排工具
 - **Supervisor**: 进程管理工具
 - **Alpine Linux**: 轻量级基础镜像
+- **GCC/Make**: 编译工具链
 
 ## 许可证
 

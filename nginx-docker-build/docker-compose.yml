@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  nginx-src-combile:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: nginx-src-combile:latest
+    container_name: nginx-src-combile
+   
