@@ -1,4 +1,5 @@
 #!/bin/sh
-rm -rf ./data/*
-mkdir ./template/{nginx_run,nginx_logs,nginx_config,nginx_ui_data} ./data/
+rm -rf ./data
+mkdir -p ./data
+mkdir -p ./data/nginx_run ./data/nginx_logs ./data/nginx_config ./data/nginx_ui_data
 cp -r template/* ./data/

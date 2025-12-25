@@ -1,6 +1,6 @@
 services:
   nginx-web:
-    image: nginx-src-combile:latest
+    image: nginx:latest
     container_name: nginx-web   # 供脚本 docker exec 使用
     restart: always
     network_mode: host          # 使用宿主机网络，提高网络性能
@@ -25,7 +25,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - NGINX_UI_NGINX_PID_PATH=/run/
-      - NGINX_UI_NGINX_SBIN_PATH=nginx
+      - NGINX_UI_NGINX_SBIN_PATH=/usr/sbin/nginx   # nginx pod 绝对路径
       - NGINX_UI_NGINX_ACCESS_LOG_PATH=/var/log/nginx/access.log
       - NGINX_UI_NGINX_ERROR_LOG_PATH=/var/log/nginx/error.log
       - NGINX_UI_NGINX_LOG_DIR_WHITE_LIST=/var/log/nginx/
